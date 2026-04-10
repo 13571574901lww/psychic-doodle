@@ -291,6 +291,7 @@ public class MedicalStreamController {
     @DeleteMapping("/session/{sessionId}")
     public void clearSession(@PathVariable String sessionId) {
         sessionMemory.remove(sessionId);
+
         log.info("Medical session cleared: {}", sessionId);
     }
 
