@@ -372,6 +372,52 @@ public class MedicalTools {
         }
     }
 
+
+    @Tool("删除用药提醒：根据药品名称删除用药提醒计划。用户可以说'删除阿司匹林的提醒'或'帮我删除XX药的提醒'。参数sessionId由系统自动提供，不需要用户输入。")
+    public String deleteMedicationReminderByName(
+            @P("会话ID，由系统自动填充") String sessionId,
+            @P("药品名称") String medicationName) {
+
+        log.info("deleteMedicationReminderByName called - sessionId: {}, medicationName: {}", sessionId, medicationName);
+
+        User currentUser = getCurrentUserBySession(sessionId);
+        if (currentUser == null) {
+            return "请先登录后再删除用药提醒。";
+        }
+
+        try {
+            List<ReminderResponse> reminders = reminderService.getUserReminders(currentUser.getId());
+
+            // 查找匹配的提醒（忽略大小写）
+            ReminderResponse targetReminder = reminders.stream()
+                    .filter(r -> r.getMedicationName().equalsIgnoreCase(medicationName))
+                    .findFirst()
+                    .orElse(null);
+
+            if (targetReminder == null) {
+                return "未找到药品「" + medicationName + "」的提醒计划。\n" +
+                        "您可以说'查看我的用药提醒'来获取所有提醒列表。";
+            }
+
+            // 保存信息用于返回
+            String deletedMedicationName = targetReminder.getMedicationName();
+            Long deletedId = targetReminder.getId();
+
+            // 调用服务删除提醒
+            reminderService.deleteReminder(currentUser.getId(), deletedId);
+
+            return String.format("✅ 用药提醒已删除！\n" +
+                            "药品：%s\n" +
+                            "提醒ID：%d\n" +
+                            "如需重新创建，可以说'我要每天X点吃XX药'。",
+                    deletedMedicationName, deletedId);
+
+        } catch (Exception e) {
+            log.error("删除用药提醒失败", e);
+            return "删除用药提醒失败：" + e.getMessage();
+        }
+    }
+
     /**
      * 查询我的用药提醒：获取当前用户的所有用药提醒计划
      * 注意：sessionId 参数由系统自动填充，用于识别当前登录用户

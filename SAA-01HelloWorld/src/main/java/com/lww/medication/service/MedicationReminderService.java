@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lww.medication.dto.ReminderRequest;
 import com.lww.medication.dto.ReminderResponse;
 import com.lww.medication.entity.MedicationReminder;
+import com.lww.medication.repository.MedicationRecordRepository;
 import com.lww.medication.repository.MedicationReminderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +24,9 @@ public class    MedicationReminderService {
 
     @Autowired
     private MedicationReminderRepository reminderRepository;
+
+    @Autowired
+    private MedicationRecordRepository recordRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -85,6 +90,7 @@ public class    MedicationReminderService {
     /**
      * 删除用药提醒
      */
+    @Transactional
     public void deleteReminder(Long userId, Long reminderId) {
         MedicationReminder reminder = reminderRepository.findById(reminderId)
                 .orElseThrow(() -> new RuntimeException("提醒计划不存在"));
@@ -93,6 +99,8 @@ public class    MedicationReminderService {
             throw new RuntimeException("无权删除此提醒计划");
         }
 
+        // 删除提醒计划关联的服药记录
+        recordRepository.deleteByReminderId(reminderId);
         reminderRepository.delete(reminder);
     }
 

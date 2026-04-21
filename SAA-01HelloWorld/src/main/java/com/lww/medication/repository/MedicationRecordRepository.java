@@ -53,4 +53,9 @@ public interface MedicationRecordRepository extends JpaRepository<MedicationReco
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    /**
+     * 根据提醒ID删除服药记录
+     */
+    void deleteByReminderId(Long reminderId);
 }

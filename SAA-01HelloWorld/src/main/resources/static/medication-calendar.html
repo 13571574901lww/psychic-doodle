@@ -251,6 +251,9 @@
                     closeNotification();
                     fetchReminders();
                     checkPendingReminders();
+                } else {
+                    const err = await response.text();
+                    alert('确认失败: ' + err);
                 }
             } catch (error) {
                 alert('操作失败');
@@ -269,6 +272,9 @@
                     closeNotification();
                     fetchReminders();
                     checkPendingReminders();
+                } else {
+                    const err = await response.text();
+                    alert('跳过失败: ' + err);
                 }
             } catch (error) {
                 alert('操作失败');
@@ -327,10 +333,34 @@
         }
 
         // 更新统计数据
-        function updateStats() {
-            const pendingCount = pendingRecords ? pendingRecords.length : 0;
-            document.getElementById('todayPending').textContent = pendingCount;
-            document.getElementById('weekReminders').textContent = currentReminders.length;
+        async function updateStats() {
+            const token = localStorage.getItem('token');
+
+            // 调用后端统计接口获取依从性和已服数量
+            try {
+                const response = await fetch(`${API_BASE}/api/medication/stats?days=7`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const stats = await response.json();
+                    // 依从性
+                    const rate = stats.adherenceRate !== undefined && stats.adherenceRate !== null ? stats.adherenceRate : 0;
+                    document.getElementById('complianceRate').textContent = rate + '%';
+                    // 今日已服
+                    const todayTaken = stats.todayTaken !== undefined ? stats.todayTaken : 0;
+                    document.getElementById('todayCompleted').textContent = todayTaken;
+                    // 今日待服 = 今日总数 - 今日已服
+                    const todayTotal = stats.todayTotal !== undefined ? stats.todayTotal : 0;
+                    const todayPending = todayTotal - todayTaken;
+                    document.getElementById('todayPending').textContent = todayPending;
+                    // 本周提醒数
+                    document.getElementById('weekReminders').textContent = currentReminders.length;
+                }
+            } catch (error) {
+                console.error('获取统计失败:', error);
+                // 显示默认值
+                document.getElementById('todayPending').textContent = pendingRecords.length;
+            }
         }
 
         // ==================== 提醒计划管理 ====================
@@ -526,15 +556,26 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
-                    btn.closest('.bg-zinc-800\\/50').innerHTML = '<span class="text-green-400">已确认服药</span>';
+                    const result = await response.json();
+                    // 更新弹窗中的显示
+                    const container = btn.closest('.bg-zinc-800\\/50');
+                    container.innerHTML = `
+                        <div>
+                            <div class="text-white text-sm font-medium">${escapeHtml(result.medicationName || '药品')}</div>
+                            <div class="text-xs text-zinc-500 mt-1">${result.dosage || ''} | ${result.scheduledTime ? result.scheduledTime.substring(11, 16) : ''} | <span class="text-green-400">已服</span></div>
+                        </div>
+                    `;
                     updateStats();
                 } else {
                     btn.disabled = false;
                     btn.textContent = '确认';
+                    const err = await response.text();
+                    alert('确认失败: ' + err);
                 }
             } catch (error) {
                 btn.disabled = false;
                 btn.textContent = '确认';
+                alert('网络错误');
             }
         }
 
@@ -549,15 +590,26 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
-                    btn.closest('.bg-zinc-800\\/50').innerHTML = '<span class="text-yellow-400">已跳过</span>';
+                    const result = await response.json();
+                    // 更新弹窗中的显示
+                    const container = btn.closest('.bg-zinc-800\\/50');
+                    container.innerHTML = `
+                        <div>
+                            <div class="text-white text-sm font-medium">${escapeHtml(result.medicationName || '药品')}</div>
+                            <div class="text-xs text-zinc-500 mt-1">${result.dosage || ''} | ${result.scheduledTime ? result.scheduledTime.substring(11, 16) : ''} | <span class="text-yellow-400">已跳过</span></div>
+                        </div>
+                    `;
                     updateStats();
                 } else {
                     btn.disabled = false;
                     btn.textContent = '跳过';
+                    const err = await response.text();
+                    alert('跳过失败: ' + err);
                 }
             } catch (error) {
                 btn.disabled = false;
                 btn.textContent = '跳过';
+                alert('网络错误');
             }
         }
 

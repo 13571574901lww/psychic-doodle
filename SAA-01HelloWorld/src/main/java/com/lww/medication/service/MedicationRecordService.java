@@ -41,7 +41,10 @@ public class MedicationRecordService {
         record.setActualTime(LocalDateTime.now());
 
         record = recordRepository.save(record);
-        return toResponse(record, null);
+
+        // 获取关联的提醒信息
+        MedicationReminder reminder = reminderRepository.findById(record.getReminderId()).orElse(null);
+        return toResponse(record, reminder);
     }
 
     /**
@@ -59,7 +62,10 @@ public class MedicationRecordService {
         record.setNotes(reason);
 
         record = recordRepository.save(record);
-        return toResponse(record, null);
+
+        // 获取关联的提醒信息
+        MedicationReminder reminder = reminderRepository.findById(record.getReminderId()).orElse(null);
+        return toResponse(record, reminder);
     }
 
     /**
@@ -92,6 +98,12 @@ public class MedicationRecordService {
         Long total = recordRepository.countByUserIdAndTimeRange(userId, start, end);
         Long taken = recordRepository.countTakenByUserIdAndTimeRange(userId, start, end);
 
+        // 计算今日数据
+        LocalDateTime todayStart = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime todayEnd = todayStart.plusDays(1);
+        Long todayTotal = recordRepository.countByUserIdAndTimeRange(userId, todayStart, todayEnd);
+        Long todayTaken = recordRepository.countTakenByUserIdAndTimeRange(userId, todayStart, todayEnd);
+
         double adherenceRate = total > 0 ? (double) taken / total * 100 : 0;
 
         Map<String, Object> stats = new HashMap<>();
@@ -99,6 +111,8 @@ public class MedicationRecordService {
         stats.put("taken", taken);
         stats.put("adherenceRate", Math.round(adherenceRate * 10) / 10.0); // 保留1位小数
         stats.put("period", days + "天");
+        stats.put("todayTotal", todayTotal);
+        stats.put("todayTaken", todayTaken);
 
         return stats;
     }

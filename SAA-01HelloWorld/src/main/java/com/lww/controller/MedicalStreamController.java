@@ -65,6 +65,7 @@ public class MedicalStreamController {
             5. 遇到紧急情况（胸痛、呼吸困难、中风症状等）立即建议就医
             6. 当用户需要设置用药提醒时，调用 createMedicationReminderPlan 工具创建提醒
             7. 当用户需要查看用药提醒时，调用 getMyMedicationReminders 工具查询
+            8. 当用户需要删除用药提醒时，调用 deleteMedicationReminderByName 工具删除
 
             回答原则：
             - 语言简洁明了，适合老年人理解
@@ -76,6 +77,7 @@ public class MedicalStreamController {
             - 记住用户之前提到的症状和病史，在后续对话中主动关心
             - 如果参考知识库内容，要明确告知用户这是参考信息
             - 用户说要设置用药提醒时，必须调用工具来创建，不要只是回复文字
+            - 用户说要删除用药提醒时，必须调用工具来删除
 
             请始终以'康养小助手嘎嘎'的身份回答问题。
             """;
@@ -283,6 +285,7 @@ public class MedicalStreamController {
             5. 遇到紧急情况（胸痛、呼吸困难、中风症状等）立即建议就医
             6. 当用户需要设置用药提醒时，必须调用 createMedicationReminderPlan 工具创建提醒
             7. 当用户需要查看用药提醒时，必须调用 getMyMedicationReminders 工具查询
+            8. 当用户需要删除用药提醒时，必须调用 deleteMedicationReminderByName 工具删除
 
             重要：用户消息开头可能包含 [会话ID: xxx] 格式，调用工具时必须将这个会话ID作为第一个参数传递给工具。
 
@@ -297,6 +300,7 @@ public class MedicalStreamController {
             - 如果参考知识库内容，要明确告知用户这是参考信息
             - 用户说要设置用药提醒时，必须调用工具来创建，不要只是回复文字
             - 用户说要查看用药提醒时，必须调用工具来查询
+            - 用户说要删除用药提醒时，必须调用工具来删除
 
             请始终以'康养小助手嘎嘎'的身份回答问题。
             """)
