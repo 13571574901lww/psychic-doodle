@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * Redis 配置属性类
  */
 @Component
-@ConfigurationProperties(prefix = "spring.redis")
+@ConfigurationProperties(prefix = "spring.data.redis")
 public class RedisProperties {
 
     /**

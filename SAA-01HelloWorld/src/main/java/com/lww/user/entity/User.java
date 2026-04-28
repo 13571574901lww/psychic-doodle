@@ -26,6 +26,9 @@ public class User {
     @Column(length = 20)
     private String phone;
 
+    @Column(length = 100)
+    private String email;
+
     private String avatar;
 
     @Column(nullable = false)
@@ -63,6 +66,9 @@ public class User {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getAvatar() { return avatar; }
     public void setAvatar(String avatar) { this.avatar = avatar; }

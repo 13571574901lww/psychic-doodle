@@ -11,16 +11,18 @@ public class UserResponse {
     private String username;
     private String nickname;
     private String phone;
+    private String email;
     private String avatar;
     private LocalDateTime createdAt;
 
     public UserResponse() {}
 
-    public UserResponse(Long id, String username, String nickname, String phone, String avatar, LocalDateTime createdAt) {
+    public UserResponse(Long id, String username, String nickname, String phone, String email, String avatar, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
         this.phone = phone;
+        this.email = email;
         this.avatar = avatar;
         this.createdAt = createdAt;
     }
@@ -36,6 +38,9 @@ public class UserResponse {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getAvatar() { return avatar; }
     public void setAvatar(String avatar) { this.avatar = avatar; }

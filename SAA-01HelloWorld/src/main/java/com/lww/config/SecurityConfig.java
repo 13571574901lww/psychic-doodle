@@ -93,7 +93,8 @@ public class SecurityConfig {
                 "http://127.0.0.1:8002",
                 "http://localhost:8080",
                 "http://127.0.0.1:8080",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "http://43.136.30.84:8002"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

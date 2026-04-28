@@ -86,7 +86,7 @@ async function sendMessage() {
         if (!response.ok) throw new Error('HTTP ' + response.status);
 
         const reader = response.body.getReader();
-        const decoder = new TextDecoder();
+        const decoder = new TextDecoder('utf-8');
         let buffer = '';
         let dataBuffer = [];
         let currentEvent = 'message';
@@ -163,7 +163,31 @@ function scrollToBottom() {
 }
 
 function renderMarkdown(text) {
-    return marked.parse(escapeHtml(text));
+    if (!text) return '';
+    let unescaped = text;
+    try {
+        unescaped = text
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+    } catch (e) {}
+
+    // 修复 markdown 格式
+    let formatted = unescaped
+        // 标题：##标题 -> ## 标题（## 后必须加空格）
+        .replace(/#{1,6}([^\s\n])/g, '#$1 ')
+        // 列表项：-xxx -> \n- xxx（- 后加空格，前面加换行）
+        .replace(/\s*-\s*([^\s])/g, '\n- $1')
+        // 数字列表：1.xxx -> \n1. xxx
+        .replace(/\s*(\d+)\.\s*([^\s])/g, '\n$1. $2');
+
+    try {
+        return marked.parse(formatted);
+    } catch (e) {
+        return escapeHtml(text);
+    }
 }
 
 function escapeHtml(str) {

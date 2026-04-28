@@ -246,6 +246,7 @@ public class GitHubOAuthService {
                 user.getUsername(),
                 user.getNickname(),
                 user.getPhone(),
+                user.getEmail(),
                 user.getAvatar(),
                 user.getCreatedAt()
         );

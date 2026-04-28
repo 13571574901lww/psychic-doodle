@@ -42,6 +42,13 @@ public class UserService {
             throw new RuntimeException("用户名已存在");
         }
 
+        // 检查邮箱是否已存在
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("邮箱已被注册");
+            }
+        }
+
         // 检查密码确认
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new RuntimeException("两次密码输入不一致");
@@ -50,6 +57,7 @@ public class UserService {
         // 创建用户
         User user = new User();
         user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(request.getNickname() != null ? request.getNickname() : request.getUsername());
         user.setEnabled(true);
@@ -114,6 +122,7 @@ public class UserService {
                 user.getUsername(),
                 user.getNickname(),
                 user.getPhone(),
+                user.getEmail(),
                 user.getAvatar(),
                 user.getCreatedAt()
         );
